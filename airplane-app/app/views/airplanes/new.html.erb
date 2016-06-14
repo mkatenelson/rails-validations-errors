@@ -1,0 +1,8 @@
+<h1>Airplane New Page</h1>
+
+<%= form_for @airplane, url: {action: "create"} do |f| %>
+  <!-- TODO: add client-side validation as well -->
+  <%= f.text_field :name, placeholder: "Name" %><br>
+  <%= f.text_field :description, placeholder: "Description" %><br>
+  <%= f.submit "Save" %>
+<% end %>

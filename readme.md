@@ -30,6 +30,14 @@ Client-side validations ensure a good *user experience* by providing real-time, 
 
 Today we'll be focusing on server-side validations in Rails, using [Active Record Validations](http://guides.rubyonrails.org/active_record_validations.html).
 
+##Airplane App
+
+For the purposes of this workshop there is a Rails app, `airplane-app` inside the repo that demonstrates the below examples.
+
+The application was generated with: `rails new airplane-app -T -B -d postgresql` in order to prevent Rails from automatically creating tests (`-T`), prevent it from automatically bundling (`-B`), and set the database postgres (`-d postgresql`).
+
+>Be sure to `bundle`, `rake db:create db:migrate`, and have postgres running before launching the application.
+
 ## Model Validations
 
 Validations provide security against invalid or harmful data entering into the database. ActiveRecord provides a [convenient and easy set of built-in methods](http://guides.rubyonrails.org/active_record_validations.html) for validating model attributes, as well as the ability to define custom validator methods. An example of a built-in validation:
@@ -42,64 +50,45 @@ class Airplane < ActiveRecord::Base
 end
 ```
 
-This snippet of code is calling the `validates` method, and accepting two arguments, an attribute from a model, and a hash of configuration options: `{presence: true, uniqueness: true, length: {minimum: 6}}`.
+>Here, the model is told to validate itself before saving to the database. The `validates` method takes the model as it's first argument and configuration options as the remaining arguments.
 
-If you try adding a new airplane to the database without a name, or with a duplicate name, or with a name with fewer than 6 characters, you'll get an error:
+In `rails console`, if you try adding a new airplane to the database where a name is
+
+* not present
+* a duplicate
+* fewer than 6 characters
+
+you'll get an error causing a `ROLLBACK`. Try, `Airplane.create(name: "747")`, which is a name of only three characters and see what happens.
+
+What if you call `Airplane.create!(name: "747")`? What's the difference?
+
+Alternatively, we can check any piece of data we are about to save with the `.valid?` method. So, instead if immediately calling`.create`. In that case, we can create a `.new` airplane instance in memory (without saving it to the database), then asking if it's `.valid?` before calling `.save`.
 
 ```bash
-irb(main):001:0> airplane = Airplane.create(name: "747")
-  (0.2ms)  BEGIN
-  Airplane Exists (1.1ms)  SELECT  1 AS one FROM "airplanes" WHERE "airplanes"."name" = '747' LIMIT 1
-  (0.2ms)  ROLLBACK
+> airplane = Airplane.new(name: "747")
 => #<Airplane id: nil, name: "747", description: nil, created_at: nil, updated_at: nil>
+> airplane.valid?
+=> false
 ```
 
-Instead of calling `.create` to add a new airplane to the database, you can call `.new` to store a new airplane instance in memory without saving it to the database. The advantage of `.new` is that you can check for errors before actually saving a record to the database (with `.save`):
+The [`.valid?`](http://guides.rubyonrails.org/active_record_validations.html#valid-questionmark-and-invalid-questionmark) method returns `true` if the new record passes the model validations and `false` if it fails any validations.
+
+Moreover, we can call [`.errors.full_messages`](http://guides.rubyonrails.org/active_record_validations.html#errors-add) to returns an array of user-friendly error messages, which is very useful and will be helpful for our user experience later.
 
 ```bash
-irb(main):001:0> airplane = Airplane.new(name: "747")
-=> #<Airplane id: nil, name: "747", description: nil, created_at: nil, updated_at: nil>
-irb(main):002:0> airplane.valid?
-  Airplane Exists (0.8ms)  SELECT  1 AS one FROM "airplanes" WHERE "airplanes"."name" = '747' LIMIT 1
-=> false
-irb(main):003:0> airplane.errors.full_messages
+> airplane.errors.full_messages
 => ["Name is too short (minimum is 6 characters)"]
 ```
 
-The [`.valid?`](http://edgeguides.rubyonrails.org/active_record_validations.html#valid-questionmark-and-invalid-questionmark) method returns `true` if the new record passes the model validations and `false` if it fails any validations. The [`.errors.full_messages`](http://edgeguides.rubyonrails.org/active_record_validations.html#errors-add) method returns an array of user-friendly error messages, which is very useful for error handling!
+Let's look at how we can display the error messages to the user so they know what went wrong if their input doesn't pass our validations.
 
-Right now, our error handling is happening in the Rails console. We can't expect users to go there to check what went wrong (and we wouldn't want to give them access, anyway!). Next, we'll look at how we can incorporate this logic in our controllers and views to display the error messages to the user.
+###Challenge: Duplicates
+
+Get the `airplane.errors.full_messages` to return `["Name has already been taken"]`
 
 ## Handling Errors in Controllers
 
-Say we have an `airplanes#create` controller method that currently looks like this:
-
-```ruby
-#
-# app/controllers/airplanes_controller.rb
-#
-
-class AirplanesController < ApplicationController
-
-  def create
-    airplane = Airplane.create(airplane_params)
-    redirect_to airplane_path(airplane)
-  end
-  
-  private 
-  
-  def airplane_params
-    params.require(:airplane).permit(:name, :description)
-  end
-
-end
-```
-
-If a user tried to add an invalid airplane to the database, they would get a server error:
-
-![heroku_err](https://cloud.githubusercontent.com/assets/7833470/11666054/50c8dede-9d9f-11e5-8484-7f547b224638.png)
-
-We should refactor `airplanes#create` to use `.new` and `.save` instead, so we can better handle the error:
+You `airplanes#create` we' `.new` and `.save` to better handle the error.
 
 ```ruby
 #
@@ -132,7 +121,7 @@ After the refactor, if a user tries to add an invalid airplane, they get redirec
 
 Rails comes with [built-in flash messages](http://api.rubyonrails.org/classes/ActionDispatch/Flash.html)! If you want to send a flash message, you need to touch the controller and view.
 
-The `flash` hash is a hash of key/value pairs. We'll set a key-value pair on the `flash` hash in the controller, and render the message from the `flash` hash in the view.    The most common keys for `flash` are `:notice` for general information and/or success messages and `:error` for error messages.
+The `flash` hash is a hash of key/value pairs. We'll set a key-value pair on the `flash` hash in the controller, and render the message from the `flash` hash in the view. The most common keys for `flash` are `:notice` for general information and/or success messages and `:error` for error messages.
 
 We can implement `flash[:error]` in our `airplanes#create` controller method like this:
 

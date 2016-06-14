@@ -1,0 +1,4 @@
+<h1>Airplane Index Page</h1>
+<% @airplanes.each do |airplane| %>
+	<h2><a href="<%= airplane_path(airplane.id) %>"><%= airplane.name %></h2>
+<% end %>
