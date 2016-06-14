@@ -1,37 +1,32 @@
-# <img src="https://cloud.githubusercontent.com/assets/7833470/10899314/63829980-8188-11e5-8cdd-4ded5bcb6e36.png" height="60"> Validations &amp; Error-Handling
+![](https://ga-dash.s3.amazonaws.com/production/assets/logo-9f88ae6c9c3871690e33280fcf557f33.png)
 
-| Objectives |
-|:--- |
-| Discuss the importance of error-handling in web development. |
-| Use built-in ActiveRecord validation methods to validate database entries. |
-| Display errors in the view using Rails `flash` messages. |
+#Rails: Error-Handling & Validations
 
-## Error-Handling: Why does it matter?
+### Why is this important?
+<!-- framing the "why" in big-picture/real world examples -->
+*This workshop is important because:*
 
-Have you ever filled out a form on a website and hit submit, only to receive see a `500` server error page?
+Error-handling is a critical part of web development. One one hand developers need to ensure their applications validate input and raise errors appropriately. On the other hand it is also important design a good user experience for when these errors occur.
 
-Ever tried to register for something only to be told that your username has been taken, or your password doesn't contain enough or the right combination of characters? If so, then you've been on both sides of error-handling.
+### What are the objectives?
+<!-- specific/measurable goal for students to achieve -->
+*After this workshop, developers will be able to:*
 
-![image002](https://cloud.githubusercontent.com/assets/7833470/11665972/e333daa4-9d9e-11e5-866b-4e146f92671d.gif)
+- Use built-in ActiveRecord validation methods to validate database entries.
+- Display errors in the view using Rails `flash` messages.
+- Set breakpoints to check your assumptions
 
-Error-handling is a critical part of web development. You can't always expect for your users to take the "Basic Path" (or the "Happy Path"). Users make mistakes, some people are malicious (SQL injection anyone?), and things generally go wrong. But with a little planning ahead, you can keep your users moving through the flow of your application with minimal confusion and frustration.
+### Where should we be now?
+<!-- call out the skills that are prerequisites -->
+*Before this workshop, developers should already be able to:*
 
-### Error Messages
+- Construct a basic Rails application
 
-Without **good** error messages, you have user experiences like this:
+##Error Handling
 
-![heroku_err](https://cloud.githubusercontent.com/assets/7833470/11666054/50c8dede-9d9f-11e5-8484-7f547b224638.png)
+**The best error-handling strategy is a combination of both [client-side](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Forms/Data_form_validation) and server-side validations.**
 
-Which tends to leave you feeling like this:
-
-<img src="https://cloud.githubusercontent.com/assets/7833470/11666081/75a502f0-9d9f-11e5-9d51-3c71a5bc3dcf.gif" alt="uncivil_response" height=240>
-
-
-
-
-You've seen different error-handling strategies already - you can validate data on the client-side with a library like [jQuery Validate](http://jqueryvalidation.org), or you can validate data on the server-side with model validations.
-
-**The best error-handling strategy is a combination of both client-side and server-side validations.** Client-side validations ensure a good user experience by providing real-time, inline feedback on the user input. Server-side validations are **essential** for maintaining database integrity, especially if the client-side validations are ever compromised (e.g. users "hacking" or changing the DOM, slow internet connection preventing JavaScript from loading, etc.)
+Client-side validations ensure a good *user experience* by providing real-time, inline feedback on the user input. Server-side validations are **essential** for maintaining *database integrity*, especially if the client-side validations are ever compromised or purposely circumvented.
 
 Today we'll be focusing on server-side validations in Rails, using [Active Record Validations](http://guides.rubyonrails.org/active_record_validations.html).
 
@@ -39,21 +34,19 @@ Today we'll be focusing on server-side validations in Rails, using [Active Recor
 
 Validations provide security against invalid or harmful data entering into the database. ActiveRecord provides a [convenient and easy set of built-in methods](http://guides.rubyonrails.org/active_record_validations.html) for validating model attributes, as well as the ability to define custom validator methods. An example of a built-in validation:
 
-```ruby
-#
-# app/models/airplane.rb
-#
+**app/models/airplane.rb**
 
+```ruby
 class Airplane < ActiveRecord::Base
-  validates :name, presence: true, uniqueness: true, length: { minimum: 6 }
+  validates :name, presence: true, uniqueness: true, length: {minimum: 6}
 end
 ```
 
-This snippet of code is calling the `validates` method, and accepting two arguments, an attribute from a model, and a hash of configurations: `{ presence: true, uniqueness: true, length: { minimum: 6 } }`.
+This snippet of code is calling the `validates` method, and accepting two arguments, an attribute from a model, and a hash of configuration options: `{presence: true, uniqueness: true, length: {minimum: 6}}`.
 
 If you try adding a new airplane to the database without a name, or with a duplicate name, or with a name with fewer than 6 characters, you'll get an error:
 
-```zsh
+```bash
 irb(main):001:0> airplane = Airplane.create(name: "747")
   (0.2ms)  BEGIN
   Airplane Exists (1.1ms)  SELECT  1 AS one FROM "airplanes" WHERE "airplanes"."name" = '747' LIMIT 1
@@ -63,7 +56,7 @@ irb(main):001:0> airplane = Airplane.create(name: "747")
 
 Instead of calling `.create` to add a new airplane to the database, you can call `.new` to store a new airplane instance in memory without saving it to the database. The advantage of `.new` is that you can check for errors before actually saving a record to the database (with `.save`):
 
-```zsh
+```bash
 irb(main):001:0> airplane = Airplane.new(name: "747")
 => #<Airplane id: nil, name: "747", description: nil, created_at: nil, updated_at: nil>
 irb(main):002:0> airplane.valid?
