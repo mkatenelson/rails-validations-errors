@@ -14,7 +14,6 @@ Error-handling is a critical part of web development. One one hand developers ne
 
 - Use built-in ActiveRecord validation methods to validate database entries.
 - Display errors in the view using Rails `flash` messages.
-- Create a 404 page
 - Set breakpoints to check your assumptions
 
 ### Where should we be now?
@@ -61,7 +60,7 @@ In `rails console`, if you try adding a new airplane to the database where a nam
 
 you'll get an error causing a `ROLLBACK`. Try, `Airplane.create(name: "747")`, which is a name of only three characters and see what happens.
 
-What if you call `Airplane.create!(name: "747")`? What's the difference?
+What if you call `Airplane.create!(name: "747")`?
 
 Alternatively, we can check any piece of data we are about to save with the `.valid?` method. So, instead if immediately calling`.create`. In that case, we can create a `.new` airplane instance in memory (without saving it to the database), then asking if it's `.valid?` before calling `.save`.
 
@@ -139,21 +138,42 @@ Just one last step! We've sent `flash` to the view, but we haven't rendered it y
 
 Lastly there will be errors that crash your application that you need to catch and debug before they do so. This will require setting a break point in order for you to stop execution of the code and check your assumptions in a specific context. Let's discuss the preferred method to do so.
 
-By default, Rails comes with the gem `byebug` loaded into the development & test environments. byebug is great and is what is loaded up during 
+By default, Rails comes with the gem `byebug` loaded into the development & test environments. Anywhere in the code you can call `byebug`, which will set a breakpoint.
 
-If you application runs into an error it loads up a `console` in the browser for you to interact with byebug from the front-end.
+> Set a breakpoint in `animals#index`, hit it. Can we add a query string to the url and inspect the `params`?
+
+###Spicing up IRB
+
+You may have noticed that `irb` is not very spicy out of the box. Let's customize the `~/.irbrc` file, which is loaded every time `irb`'s console is run. If you don't already have one, create it.
+
+In this file we'll add the gem [`wirb`](https://github.com/janlelis/wirb) and start it by default each time `irb` is loaded up.
+
+**~/.irbrc**
+
+```bash
+require 'wirb'
+Wirb.start
+```
+
+###Pseudo Client-side debugging
+
+Also note, that in addition to being able manually set break points, anytime the application runs into an error, it loads up a `console` in the browser that interacts with byebug from the front-end.
 
 ![rails console](assets/rails-console.png)
 
->Or you can load it up manually by invoking `<% console %>` in a view.
+>You can load up the console manually by invoking `<% console %>` somewhere in a view; generally, at the bottom of `application.html.erb`.
+
+###Challenge: 5 Minute Breakpoint
+
+Render a variable `@great_quote` onto the view but do **not** set it explicitly in the controller. Instead use `byebug` to hit breakpoint, setting `@great_quote` to a great quote, `exit`ing, and seeing it rendered onto the page.
 
 ## Challenges
 
 Now that you've seen how to implement validations, propagate the Active Record errors from your database models to the controller, and then pass the errors into the view, it's your turn!
 
-You're working on the structure of an app for a vet clinic to track owners and pets!  See [this repo](https://github.com/sf-wdi-27-28/rails_validations_errors) for the starter code and challenges.
+You're working on the structure of an app for a vet clinic to track owners and pets!  See [this repo](#) for the starter code and challenges.
 
 ## Resources
 
 * [Active Record Validation Docs](http://guides.rubyonrails.org/active_record_validations.html)
-* []
+* [Beautify Flash Messages w/ Bootstrap](https://coderwall.com/p/jzofog/ruby-on-rails-flash-messages-with-bootstrap)
