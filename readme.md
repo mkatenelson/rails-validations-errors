@@ -142,22 +142,31 @@ By default, Rails comes with the gem `byebug` loaded into the development & test
 
 > Set a breakpoint in `animals#index`, hit it. Can we add a query string to the url and inspect the `params`?
 
-###Spicing up IRB
+###Binding.pry
 
-You may have noticed that `irb` is not very spicy out of the box. Let's customize the `~/.irbrc` file, which is loaded every time `irb`'s console is run. If you don't already have one, create it.
+This is great, but wouldn't it be so much better if we had a colorful, well indented console to work in?
 
-In this file we'll add the gem [`wirb`](https://github.com/janlelis/wirb) and start it by default each time `irb` is loaded up.
+Let's swap out the gem `byebug` with `pry-rails` and rebundle. Now we set breakpoints with `binding.pry` instead of `debugger`.
 
-**~/.irbrc**
+**Gemfile**
 
-```bash
-require 'wirb'
-Wirb.start
+```ruby
+group :development, :test do
+  
+  # pry debugger
+  gem 'pry-byebug'
+  
+  # Fake data
+  gem 'ffaker'
+
+end
 ```
 
-###Pseudo Client-side debugging
+> Try accessing the query string in the url again, this time using `binding.pry`.
 
-Also note, that in addition to being able manually set break points, anytime the application runs into an error, it loads up a `console` in the browser that interacts with byebug from the front-end.
+###Client-side Console
+
+In addition to being able manually set break points, anytime the application runs into an error, it loads up a `console` in the browser that interacts with byebug from the front-end.
 
 ![rails console](assets/rails-console.png)
 
@@ -165,7 +174,7 @@ Also note, that in addition to being able manually set break points, anytime the
 
 ###Challenge: 5 Minute Breakpoint
 
-Render a variable `@great_quote` onto the view but do **not** set it explicitly in the controller. Instead use `byebug` to hit breakpoint, setting `@great_quote` to a great quote, `exit`ing, and seeing it rendered onto the page.
+Render a variable `@great_quote` onto the view but do **not** set it explicitly in the controller. Instead use `binding.pry` to hit breakpoint, set `@great_quote` to something nice, `continue`, then see it rendered to the page.
 
 ## Challenges
 
