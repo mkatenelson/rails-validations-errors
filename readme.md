@@ -114,7 +114,7 @@ Add the above line into `airplane#create` action, if the airplane isn't saved co
     if @airplane.save
       redirect_to @airplane
     else
-      flash[:error] = airplane.errors.full_messages.join(", ")
+      flash[:error] = airplane.errors.full_messages
       render :new
     end
   end
