@@ -101,7 +101,7 @@ Rails comes with a [flash hash](http://api.rubyonrails.org/classes/ActionDispatc
 Because we're trying to display an error message we get back from Active Record we can store the error message in the flash.
 
 ```ruby
-flash[:error] = airplane.errors.full_messages.join(", ")
+flash[:error] = airplane.errors.full_messages
 ```
 
 Add the above line into `airplane#create` action, if the airplane isn't saved correctly and before the `:new` view is rendered again.
