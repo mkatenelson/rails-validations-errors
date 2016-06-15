@@ -184,6 +184,7 @@ We've just covered how to:
 * Query Active Record for validation errors
 * Handle errors appropriately
 * Display errors to the user
+* Set breakpoints in Rails
 
 For more chellenges, see the associated [lab](https://github.com/sf-wdi-29/rails-validations-errors-lab).
 
