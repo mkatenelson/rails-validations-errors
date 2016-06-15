@@ -140,7 +140,7 @@ Lastly there will be errors that crash your application that you need to catch a
 
 By default, Rails comes with the gem `byebug` loaded into the development & test environments. Anywhere in the code you can call `byebug`, which will set a breakpoint.
 
-> Set a breakpoint in `animals#index`, hit it. Can we add a query string to the url and inspect the `params`?
+> Set a breakpoint in `airplanes#index`, hit it. Can we add a query string to the url and inspect the `params`?
 
 ###Binding.pry
 
