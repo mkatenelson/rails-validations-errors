@@ -166,21 +166,26 @@ end
 
 ###Client-side Console
 
-In addition to being able manually set break points, anytime the application runs into an error, it loads up a `console` in the browser that interacts with byebug from the front-end.
+On a side note, note that anytime the application runs into an error, it loads up a `console` in the browser that interacts with byebug from the front-end via the gem `web-console`.
 
 ![rails console](assets/rails-console.png)
 
->You can load up the console manually by invoking `<% console %>` somewhere in a view; generally, at the bottom of `application.html.erb`.
+>Additionally we can load up the console manually by invoking `<% console %>` somewhere in a view; generally, at the bottom of `application.html.erb`.
 
 ###Challenge: 5 Minute Breakpoint
 
 Render a variable `@great_quote` onto the view but do **not** set it explicitly in the controller. Instead use `binding.pry` to hit breakpoint, set `@great_quote` to something nice, `continue`, then see it rendered to the page.
 
-## Challenges
+## More Challenges
 
-Now that you've seen how to implement validations, propagate the Active Record errors from your database models to the controller, and then pass the errors into the view, it's your turn!
+We've just covered how to:
 
-You're working on the structure of an app for a vet clinic to track owners and pets!  See [this repo](#) for the starter code and challenges.
+* Implement validations
+* Query Active Record for validation errors
+* Handle errors appropriately
+* Display errors to the user
+
+For more chellenges, see the associated [lab](https://github.com/sf-wdi-29/rails-validations-errors-lab).
 
 ## Resources
 
