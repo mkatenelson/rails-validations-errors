@@ -31,5 +31,10 @@ module AirplaneApp
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
+    # Note: removes `field-with-errors` class applied to form per:
+    # http://stackoverflow.com/questions/5267998/rails-3-field-with-errors-wrapper-changes-the-page-appearance-how-to-avoid-t#answer-5268106
+    config.action_view.field_error_proc = Proc.new { |html_tag, instance| 
+      html_tag
+    }
   end
 end

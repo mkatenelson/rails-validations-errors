@@ -8,12 +8,13 @@ class AirplanesController < ApplicationController
   end
 
   def create
-    airplane = Airplane.new(airplane_params)
-    if airplane.save
-      redirect_to airplane_path(airplane)
+    @airplane = Airplane.new(airplane_params)
+    if @airplane.save
+      redirect_to @airplane
     else
-      redirect_to new_airplane_path
-    end  
+      # TODO: store error messages in the flash hash
+      render :new
+    end
   end
 
   def show

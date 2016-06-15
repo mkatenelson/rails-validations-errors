@@ -2,7 +2,7 @@
 
 <%= form_for @airplane, url: {action: "create"} do |f| %>
   <!-- TODO: add client-side validation as well -->
-  <%= f.text_field :name, placeholder: "Name" %><br>
-  <%= f.text_field :description, placeholder: "Description" %><br>
+  <%= f.text_field :name, placeholder: "Name", value: @airplane.name %>
+  <%= f.text_field :description, placeholder: "Description", value: @airplane.description %>
   <%= f.submit "Save" %>
 <% end %>

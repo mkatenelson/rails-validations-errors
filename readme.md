@@ -1,6 +1,6 @@
 ![](https://ga-dash.s3.amazonaws.com/production/assets/logo-9f88ae6c9c3871690e33280fcf557f33.png)
 
-#Rails: Error-Handling & Validations
+#Error-Handling & Validations
 
 ### Why is this important?
 <!-- framing the "why" in big-picture/real world examples -->
@@ -14,6 +14,7 @@ Error-handling is a critical part of web development. One one hand developers ne
 
 - Use built-in ActiveRecord validation methods to validate database entries.
 - Display errors in the view using Rails `flash` messages.
+- Create a 404 page
 - Set breakpoints to check your assumptions
 
 ### Where should we be now?
@@ -36,7 +37,7 @@ For the purposes of this workshop there is a Rails app, `airplane-app` inside th
 
 The application was generated with: `rails new airplane-app -T -B -d postgresql` in order to prevent Rails from automatically creating tests (`-T`), prevent it from automatically bundling (`-B`), and set the database postgres (`-d postgresql`).
 
->Be sure to `bundle`, `rake db:create db:migrate`, and have postgres running before launching the application.
+>Be sure to `bundle`, `rake db:create db:migrate db:seed`, and have postgres running before launching the application.
 
 ## Model Validations
 
@@ -86,101 +87,65 @@ Let's look at how we can display the error messages to the user so they know wha
 
 Get the `airplane.errors.full_messages` to return `["Name has already been taken"]`
 
-## Handling Errors in Controllers
+## Displaying Errors to the User
 
-You `airplanes#create` we' `.new` and `.save` to better handle the error.
+In the `airplane-app` what currently happens when we try to submit invalid data to the database via the `airplanes#new` view?
 
-```ruby
-#
-# app/controllers/airplanes_controller.rb
-#
+>As a user how are you supposed to know that something went wrong and what you are supposed to do about it?
 
-class AirplanesController < ApplicationController
-
-  def create
-    airplane = airplane.new(airplane_params)
-    if airplane.save
-      redirect_to airplane_path(airplane)
-    else
-      redirect_to new_airplane_path
-    end  
-  end
-  
-  private 
-  
-  def airplane_params
-    params.require(:airplane).permit(:name, :description)
-  end
-  
-end
-```
-
-After the refactor, if a user tries to add an invalid airplane, they get redirected to `airplanes_new_path` (the form to create a new airplane) so they can try again. The last piece of the error-handling user flow is to  display flash messages to show these errors to the user.
+In order to properly communicate what is happening behind the scenes, we can display flash messages to show them specific errors.
 
 ## Error Handling in Views: Flash Messages
 
-Rails comes with [built-in flash messages](http://api.rubyonrails.org/classes/ActionDispatch/Flash.html)! If you want to send a flash message, you need to touch the controller and view.
+Rails comes with a [flash hash](http://api.rubyonrails.org/classes/ActionDispatch/Flash.html), which stores a set of key/value pairs. We'll set a key-value pair on the `flash` hash in the controller to be rendered later in the view.
 
-The `flash` hash is a hash of key/value pairs. We'll set a key-value pair on the `flash` hash in the controller, and render the message from the `flash` hash in the view. The most common keys for `flash` are `:notice` for general information and/or success messages and `:error` for error messages.
-
-We can implement `flash[:error]` in our `airplanes#create` controller method like this:
+Because we're trying to display an error message we get back from Active Record we can store the error message in the flash.
 
 ```ruby
-#
-# app/controllers/airplanes_controller.rb
-#
+flash[:error] = airplane.errors.full_messages.join(", ")
+```
 
-class AirplanesController < ApplicationController
+Add the above line into `airplane#create` action, if the airplane isn't saved correctly and before the `:new` view is rendered again.
 
+**app/controllers/airplanes_controller.rb**
+
+```ruby
   def create
-    airplane = airplane.new(airplane_params)
-    if airplane.save
-      redirect_to airplane_path(airplane)
+    @airplane = Airplane.new(airplane_params)
+    if @airplane.save
+      redirect_to @airplane
     else
-      # save error messages to flash hash, with :error key
       flash[:error] = airplane.errors.full_messages.join(", ")
-      redirect_to new_airplane_path
-    end  
+      render :new
+    end
   end
-  
-  private 
-  
-  def airplane_params
-    params.require(:airplane).permit(:name, :description)
-  end
-
-end
 ```
 
 Just one last step! We've sent `flash` to the view, but we haven't rendered it yet. Let's do that in our `application.html.erb` layout, so we can render flash messages in *every* view:
 
+**app/views/layouts/application.html.erb**
+
 ```html
-<!-- app/views/layouts/application.html.erb -->
+<% flash.each do |name, msg| %>
+<div><%= msg %></div>
+<% end %>
 
-<!DOCTYPE html>
-<html>
-<head>
-  ...
-</head>
-<body>
-  <!-- display flash messages above the yield block -->
-  <% flash.each do |name, msg| %>
-    <div><%= msg %></div>
-  <% end %>
-
-  <%= yield %>
-
-</body>
-</html>
+<%= yield %>
 ```
 
-## Error Pages
+>Note: run [`rake notes`](http://guides.rubyonrails.org/command_line.html#notes) for further guidance on where to add the above lines of code. 
 
-<img src="github-500.png" alt="github error status 500 page" height=300>
+## Debugging
 
->_GitHub's Error Status 500 Page_
+Lastly there will be errors that crash your application that you need to catch and debug before they do so. This will require setting a break point in order for you to stop execution of the code and check your assumptions in a specific context. Let's discuss the preferred method to do so.
 
-Sometimes, things go wrong.  Rails has default error pages set up for 404, 422, and 500 errors, inside the `app/public` directory.  
+By default, Rails comes with the gem `byebug` loaded into the development & test environments. byebug is great and is what is loaded up during 
+
+If you application runs into an error it loads up a `console` in the browser for you to interact with byebug from the front-end.
+
+![rails console](assets/rails-console.png)
+
+>Or you can load it up manually by invoking `<% console %>` in a view.
 
 ## Challenges
 
@@ -191,4 +156,4 @@ You're working on the structure of an app for a vet clinic to track owners and p
 ## Resources
 
 * [Active Record Validation Docs](http://guides.rubyonrails.org/active_record_validations.html)
-
+* []
