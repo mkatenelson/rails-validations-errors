@@ -1,5 +1,6 @@
 class AirplanesController < ApplicationController
   def index
+    binding.pry
     @airplanes = Airplane.all
   end
 

@@ -11,6 +11,9 @@
 <a href="<%= root_path %>">Home</a>
 
 <% #TODO: display flash messages above the yield block %>
+<% flash.each do |name, msg| %>
+<div><%= msg %></div>
+<% end %>
 
 <%= yield %>
 
